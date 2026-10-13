@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loosa - Desenhe direto na tela do Mac</title>
+  <meta name="description" content="Loosa é um app de barra de menus para macOS que deixa você desenhar em cima da tela: setas, formas, texto, marca-texto e desfoque. Para gravações, aulas e apresentações.">
+  <meta property="og:title" content="Loosa - Desenhe direto na tela do Mac">
+  <meta property="og:description" content="Setas, formas, texto, marca-texto e desfoque, a um atalho de distância.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0c0d0c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21 18'%3E%3Crect x='0' y='0' width='21' height='18' rx='4' fill='%23b7f34a'/%3E%3Cpath d='M5 10C6.8 5.6 9 5.6 10.5 9C12 12.4 14.2 12.4 16 8' fill='none' stroke='%230c0d0c' stroke-width='1.9' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav" id="top">
+  <div class="wrap nav__in">
+    <a class="logo" href="#top" aria-label="Loosa, início"><svg class="logo__mark" viewBox="0 0 21 18" width="26" height="22" aria-hidden="true"><rect x="2.25" y="3.25" width="16.5" height="11.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 10C6.8 5.6 9 5.6 10.5 9C12 12.4 14.2 12.4 16 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Loosa</span></a>
+    <nav class="nav__links" aria-label="Seções">
+      <a href="#uso">Para quê</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#atalhos">Atalhos</a>
+      <a href="#faq">Perguntas</a>
+    </nav>
+    <a class="btn btn--primary btn--sm" href="#comprar">Obter o Loosa</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero wrap">
+    <div class="hero__copy">
+      <h1 data-in>Desenhe direto na tela do seu Mac.</h1>
+      <p class="lead" data-in style="--d:80ms">Setas, formas, texto, marca-texto e desfoque, a um atalho de distância. Feito para gravações, aulas e apresentações.</p>
+      <div class="hero__cta" data-in style="--d:160ms">
+        <a class="btn btn--primary" href="#comprar">Obter o Loosa</a>
+        <a class="btn btn--ghost" href="#recursos">Ver recursos</a>
+      </div>
+    </div>
+
+    <!-- Demo interativa: usa o mesmo tipo de desenho do app, direto no navegador -->
+    <div class="demo" data-in style="--d:240ms">
+      <div class="stage" id="stage" tabindex="0" aria-label="Área de demonstração. Desenhe com o mouse ou o dedo.">
+        <div class="stage__content" aria-hidden="true">
+          <p class="stage__title">Plano de lançamento</p>
+          <p class="stage__text">Meta do trimestre: 1.240 novos clientes. Orçamento de mídia: R$ 38.500. Responsável: equipe de produto.</p>
+          <p class="stage__text">Próxima revisão na sexta-feira, às 15h.</p>
+        </div>
+        <canvas id="board"></canvas>
+        <div class="stage__hint" id="hint">Experimente: desenhe aqui</div>
+
+        <div class="tools" role="toolbar" aria-label="Ferramentas de desenho">
+          <button class="tool is-on" data-tool="pen" aria-label="Desenho livre (P)" title="Desenho livre (P)"><i class="ph ph-pencil-simple"></i></button>
+          <button class="tool" data-tool="hl" aria-label="Marca-texto (H)" title="Marca-texto (H)"><i class="ph ph-highlighter"></i></button>
+          <button class="tool" data-tool="arrow" aria-label="Seta (A)" title="Seta (A)"><i class="ph ph-arrow-up-right"></i></button>
+          <button class="tool" data-tool="rect" aria-label="Quadrado (R)" title="Quadrado (R)"><i class="ph ph-square"></i></button>
+          <button class="tool" data-tool="oval" aria-label="Círculo (O)" title="Círculo (O)"><i class="ph ph-circle"></i></button>
+          <button class="tool" data-tool="text" aria-label="Texto (T)" title="Texto (T)"><i class="ph ph-text-t"></i></button>
+          <button class="tool" data-tool="blur" aria-label="Desfoque (D)" title="Desfoque (D)"><i class="ph ph-drop"></i></button>
+          <button class="tool" data-tool="erase" aria-label="Apagar item (E)" title="Apagar item (E)"><i class="ph ph-eraser"></i></button>
+          <span class="tools__sep"></span>
+          <button class="tool" id="ghost" aria-pressed="false" aria-label="Traço fantasma (G)" title="Traço fantasma (G)"><i class="ph ph-ghost"></i></button>
+          <button class="tool" id="undo" aria-label="Desfazer" title="Desfazer"><i class="ph ph-arrow-counter-clockwise"></i></button>
+          <button class="tool" id="clear" aria-label="Limpar tudo" title="Limpar tudo"><i class="ph ph-trash"></i></button>
+          <span class="tools__sep"></span>
+          <div class="swatches" role="radiogroup" aria-label="Cor">
+            <button class="sw is-on" role="radio" aria-checked="true" aria-label="Verde" style="--c:#b7f34a" data-color="#b7f34a"></button>
+            <button class="sw" role="radio" aria-checked="false" aria-label="Vermelho" style="--c:#ff5a4f" data-color="#ff5a4f"></button>
+            <button class="sw" role="radio" aria-checked="false" aria-label="Azul" style="--c:#4f9dff" data-color="#4f9dff"></button>
+            <button class="sw" role="radio" aria-checked="false" aria-label="Amarelo" style="--c:#ffd84a" data-color="#ffd84a"></button>
+            <button class="sw" role="radio" aria-checked="false" aria-label="Branco" style="--c:#f3f3ee" data-color="#f3f3ee"></button>
+          </div>
+        </div>
+      </div>
+      <p class="demo__cap">Esta é uma amostra no navegador. No Mac, o desenho cobre a tela inteira, por cima de qualquer app.</p>
+    </div>
+  </section>
+
+  <!-- PARA QUÊ -->
+  <section class="section wrap" id="uso">
+    <h2 class="h2">Mostrar vale mais do que explicar.</h2>
+    <div class="uses">
+      <article class="use" data-in>
+        <i class="ph ph-video-camera"></i>
+        <h3>Tutoriais e gravações</h3>
+        <p>Aponte o que importa com uma seta ou um marca-texto enquanto grava. A barra de ferramentas não aparece no vídeo.</p>
+      </article>
+      <article class="use" data-in style="--d:60ms">
+        <i class="ph ph-chalkboard-teacher"></i>
+        <h3>Aulas</h3>
+        <p>Circule, sublinhe e escreva por cima do conteúdo. Com o traço fantasma, o desenho some sozinho e a tela volta limpa.</p>
+      </article>
+      <article class="use" data-in>
+        <i class="ph ph-presentation-chart"></i>
+        <h3>Apresentações</h3>
+        <p>Destaque um número, risque uma ideia ou esconda um dado com o desfoque, sem sair do que está na tela.</p>
+      </article>
+      <article class="use" data-in style="--d:60ms">
+        <i class="ph ph-camera"></i>
+        <h3>Prints que se explicam</h3>
+        <p>Marque o ponto exato antes de tirar o print. Setas e formas deixam o recado óbvio para quem recebe.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- RECURSOS (bento: 7 itens, 7 células) -->
+  <section class="section wrap" id="recursos">
+    <h2 class="h2">Tudo que você usa para explicar algo na tela.</h2>
+    <div class="bento">
+
+      <div class="cell cell--accent c-a" data-in>
+        <i class="ph ph-pencil-simple"></i>
+        <h3>Desenho livre</h3>
+        <p>Com suavização, para o traço não ficar tremido.</p>
+        <kbd class="key key--big">P</kbd>
+      </div>
+
+      <div class="cell c-b" data-in style="--d:50ms">
+        <i class="ph ph-highlighter"></i>
+        <h3>Marca-texto</h3>
+        <p>Verde e semitransparente, sem esconder o que está embaixo.</p>
+        <span class="hl-sample">Esse trecho é o que importa.</span>
+        <kbd class="key">H</kbd>
+      </div>
+
+      <div class="cell c-c" data-in style="--d:100ms">
+        <i class="ph ph-shapes"></i>
+        <h3>Seta, quadrado e círculo</h3>
+        <p>Com opção de preencher. Shift trava a seta em 45° e deixa as formas perfeitas.</p>
+        <div class="keys"><kbd class="key">A</kbd><kbd class="key">R</kbd><kbd class="key">O</kbd></div>
+      </div>
+
+      <div class="cell cell--blur c-d" data-in>
+        <div class="blur-bg" aria-hidden="true">Senha: 4821-7730-9915</div>
+        <div class="blur-card">
+          <i class="ph ph-drop"></i>
+          <h3>Desfoque de área</h3>
+          <p>Arraste um retângulo e o que está embaixo fica desfocado. Para esconder dados antes de mostrar a tela.</p>
+          <kbd class="key">D</kbd>
+        </div>
+      </div>
+
+      <div class="cell c-e" data-in style="--d:50ms">
+        <i class="ph ph-text-t"></i>
+        <h3>Texto</h3>
+        <p>Escreva direto na tela. Enter confirma, Shift+Enter quebra a linha.</p>
+        <kbd class="key">T</kbd>
+      </div>
+
+      <div class="cell c-f" data-in style="--d:100ms">
+        <i class="ph ph-ghost"></i>
+        <h3>Traço fantasma</h3>
+        <p>O desenho some sozinho depois de 1 a 10 segundos, você escolhe.</p>
+        <span class="ghost-sample" aria-hidden="true">olha aqui</span>
+        <kbd class="key">G</kbd>
+      </div>
+
+      <div class="cell cell--wide c-g" data-in>
+        <div>
+          <i class="ph ph-eraser"></i>
+          <h3>Duas borrachas</h3>
+          <p>Apague um item inteiro com um clique, ou passe a borracha livre só no pedaço que errou. Desfazer e refazer sempre à mão.</p>
+        </div>
+        <div class="keys keys--end">
+          <span class="keylab"><kbd class="key">E</kbd> item</span>
+          <span class="keylab"><kbd class="key">B</kbd> livre</span>
+          <span class="keylab"><kbd class="key">⌘</kbd><kbd class="key">Z</kbd> desfazer</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ATALHOS -->
+  <section class="section wrap" id="atalhos">
+    <h2 class="h2">Do teclado, sem procurar botão.</h2>
+    <p class="sub">Aperte ⌘1 em qualquer lugar para ligar o desenho. Depois é uma letra por ferramenta.</p>
+    <div class="shortcuts" data-in>
+      <div class="sc"><kbd class="key">P</kbd><span>Desenho livre</span></div>
+      <div class="sc"><kbd class="key">H</kbd><span>Marca-texto</span></div>
+      <div class="sc"><kbd class="key">A</kbd><span>Seta</span></div>
+      <div class="sc"><kbd class="key">R</kbd><span>Quadrado</span></div>
+      <div class="sc"><kbd class="key">O</kbd><span>Círculo</span></div>
+      <div class="sc"><kbd class="key">T</kbd><span>Texto</span></div>
+      <div class="sc"><kbd class="key">D</kbd><span>Desfoque</span></div>
+      <div class="sc"><kbd class="key">E</kbd><span>Apagar item</span></div>
+      <div class="sc"><kbd class="key">B</kbd><span>Borracha livre</span></div>
+      <div class="sc"><kbd class="key">G</kbd><span>Traço fantasma</span></div>
+      <div class="sc"><kbd class="key">F</kbd><span>Preencher formas</span></div>
+      <div class="sc"><kbd class="key">1-6</kbd><span>Troca a cor</span></div>
+    </div>
+    <p class="note">O atalho global (⌘1 por padrão) e todas as letras podem ser trocados nas Configurações.</p>
+  </section>
+
+  <!-- FLUXO -->
+  <section class="section wrap flow">
+    <h2 class="h2">Três toques e você está desenhando.</h2>
+    <ol class="steps">
+      <li data-in>
+        <kbd class="key key--big">⌘1</kbd>
+        <h3>Ligue</h3>
+        <p>Pelo atalho ou pelo ícone na barra de menus. A tela fica pronta e a barra de ferramentas aparece.</p>
+      </li>
+      <li data-in style="--d:70ms">
+        <kbd class="key key--big"><i class="ph ph-pencil-simple"></i></kbd>
+        <h3>Desenhe</h3>
+        <p>Escolha a ferramenta, a cor e a espessura. Marque o que precisa ser visto.</p>
+      </li>
+      <li data-in style="--d:140ms">
+        <kbd class="key key--big">Esc</kbd>
+        <h3>Saia</h3>
+        <p>Os desenhos somem ao sair e a tela volta ao normal, sem rastro.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- DISCRIÇÃO / CONTROLE -->
+  <section class="section wrap">
+    <h2 class="h2">Feito para ficar fora do seu caminho.</h2>
+    <div class="facts">
+      <div data-in>
+        <h3>A barra não vai para o print</h3>
+        <p>A barra de ferramentas fica invisível em capturas e gravações de tela. Só o desenho aparece.</p>
+      </div>
+      <div data-in style="--d:60ms">
+        <h3>Todos os monitores</h3>
+        <p>O desenho cobre todas as telas conectadas, não só a principal.</p>
+      </div>
+      <div data-in>
+        <h3>Do seu jeito</h3>
+        <p>Escolha quais ferramentas aparecem, troque atalhos e cores, e mova a barra para baixo, cima, esquerda ou direita. Tamanho de 80% a 160%.</p>
+      </div>
+      <div data-in style="--d:60ms">
+        <h3>Nada sai do seu Mac</h3>
+        <p>A permissão de Gravação de Tela serve só para o desfoque. Nada é gravado nem enviado para lugar nenhum.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section wrap faq" id="faq">
+    <h2 class="h2">Perguntas frequentes</h2>
+    <div class="faq__list">
+      <details>
+        <summary>Quais Macs são compatíveis?</summary>
+        <p>macOS 14 ou mais recente, em Apple Silicon e em Intel.</p>
+      </details>
+      <details>
+        <summary>Preciso liberar alguma permissão?</summary>
+        <p>Só para o desfoque de área, que precisa ler o que está na tela e por isso pede Gravação de Tela. Sem a permissão, o Loosa usa um vidro fosco acinzentado no lugar. Todo o resto funciona normalmente.</p>
+      </details>
+      <details>
+        <summary>O Loosa grava ou envia minha tela?</summary>
+        <p>Não. A permissão é usada apenas para aplicar o desfoque. Nada é gravado nem enviado para lugar nenhum.</p>
+      </details>
+      <details>
+        <summary>A barra de ferramentas aparece nos meus vídeos?</summary>
+        <p>Não. A barra fica fora de prints e gravações de tela. Os desenhos aparecem, a barra não.</p>
+      </details>
+      <details>
+        <summary>Os desenhos ficam salvos?</summary>
+        <p>Não. Eles somem ao sair do modo de desenho, e você pode limpar tudo a qualquer momento com ⌘⌫.</p>
+      </details>
+      <details>
+        <summary>Posso mudar atalhos, cores e ferramentas?</summary>
+        <p>Sim. Nas Configurações você liga e desliga cada ferramenta, troca as letras de atalho, as 6 cores da paleta, a posição e o tamanho da barra, e o atalho global.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="buy wrap" id="comprar">
+    <div class="buy__in">
+      <h2>Leve o Loosa para o seu Mac.</h2>
+      <p>Para macOS 14 ou mais recente, Apple Silicon e Intel.</p>
+      <!-- TODO: trocar o href pelo link real de compra (Gumroad, Lemon Squeezy, Stripe, etc.) -->
+      <a class="btn btn--primary btn--lg" href="#comprar">Obter o Loosa</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <a class="logo" href="#top"><svg class="logo__mark" viewBox="0 0 21 18" width="26" height="22" aria-hidden="true"><rect x="2.25" y="3.25" width="16.5" height="11.5" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 10C6.8 5.6 9 5.6 10.5 9C12 12.4 14.2 12.4 16 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Loosa</span></a>
+    <span>© 2026 Loosa. Todos os direitos reservados.</span>
+  </div>
+</footer>
+
+<script src="main.js" defer></script>
+</body>
+</html>
